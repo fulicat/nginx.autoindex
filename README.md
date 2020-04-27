@@ -1,7 +1,7 @@
 # nginx.autoindex 目录索引
 autoindex for nginx
 
-
+[download](https://github.com/fulicat/nginx.autoindex/releases)
 
 config:
 
