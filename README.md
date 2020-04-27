@@ -24,4 +24,5 @@ autoindex for nginx
 
 ###### screenshots:
 
-![screenshots](./screenshots.png)
+![screenshots](https://raw.githubusercontent.com/fulicat/nginx.autoindex/master/screenshots.png)
+
