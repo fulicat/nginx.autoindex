@@ -3,7 +3,7 @@ autoindex for nginx
 
 [download](https://github.com/fulicat/nginx.autoindex/releases)
 
-config:
+###### config:
 
 ```nginx
     server {
@@ -20,3 +20,8 @@ config:
     }
 ```
 
+
+
+###### screenshots:
+
+![screenshots](./screenshots.png)
