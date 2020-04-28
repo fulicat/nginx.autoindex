@@ -14,6 +14,9 @@
 	font-size: 14px;
 	padding:0 10px;
 }
+.caption{
+	word-break:break-all;
+}
 .list>li{
 	line-height:34px;
 	border-bottom:1px #ddd solid;
@@ -23,30 +26,63 @@
 	color:#999;
 }
 .list>li:hover{
-	background-color:#eee;
 	border-bottom-color:#2c66b1;
+	background-color:#eee;
 }
-.list a{
+.list>li>a{
 	text-decoration:none;
+	display:inline-block;
+	min-width:80px;
 }
-.list a:hover{
+.list>li>a:hover{
 	text-decoration:underline;
 }
-.list .item-info{
+.item-info{
 	position:absolute;
 	top:0;
 	right:0;
 	bottom:0;
-	min-width:280px;
 	display:block;
 	color:#666;
+}
+.item-mtime,
+.item-size{
+	min-height:16px;
+	height:100%;
+	display:inline-block;
+	vertical-align:top;
+	background-color:#fdfdfd;
+}
+.list>li:hover .item-mtime,
+.list>li:hover .item-size{
+	background-color:#f7f7f7;
+}
+.item-mtime{
+	min-width:160px;
 	padding-left:10px;
+	padding-right:2px;
+}
+.item-size{
+	min-width:100px;
 	padding-right:10px;
-	background-color:rgba(255,255,255,0.45);
+	text-align:right;
+	padding-left:2px;
 }
-.list .item-size{
-	float:right;
+
+.item-icon,
+.item-name{
+	vertical-align:middle;
 }
+.item-icon{
+	display:inline-block;
+}
+.item-name{
+	display:inline;
+	min-width:40px;
+	min-height:20px;
+	line-height:20px;
+}
+
 .copyright{
 	text-align:right;
 	padding:10px;
@@ -57,47 +93,56 @@
 	color:#2c66b1;
 }
 
-.list .item-icon,
-.list .item-name{
-	display:inline-block;
-	vertical-align:middle;
-}
-.list .item-name{
-	min-width:40px;
-}
-
-@media (max-width: 640px){
+@media (max-width: 768px){
 	.caption{
 		font-size:16px;
 	}
 	.list>li{
-		padding-top:6px;
-		padding-bottom:6px;
+		padding:5px;
 		line-height:24px;
 	}
-	.list a{
+	.list>li>a{
 		display:block;
 		white-space:normal;
 		word-break:break-all;
-		padding-top:5px;
-		padding-bottom:5px;
+		margin:-5px;
+		padding:8px 5px;
 	}
-	.list .item-info{
+	.item-info{
 		min-width:auto;
-		position:relative;
+		position:static;
 		font-size:12px;
 		line-height:16px;
 		color:#888;
-		background-color:transparent;
 		padding:0;
+		width:100%;
+		display:table;
+		table-layout:fixed;
+		border-collapse: collapse;
 	}
-	.list .item-date{
+	.item-mtime,
+	.item-size{
+		display:table-cell;
+		padding-top:4px;
+	}
+	.item-mtime,
+	.item-size,
+	.list>li:hover .item-mtime,
+	.list>li:hover .item-size{
+		background-color:transparent;
+	}
+	.item-mtime{
 		display:block;
+		padding-left:0;
 	}
-	.list .item-size{
-		position:absolute;
-		right:0;
-		bottom:0;
+	.item-size{
+		min-width: auto;
+		padding-right:0;
+		text-align:left;
+	}
+	.item-mtime + .item-size{
+		min-width: 100px;
+		text-align:right;
 	}
 }
 .item-icon{
@@ -125,7 +170,7 @@
 <body>
 <div id="autoindex"></div>
 <script>
-(function(data) {
+(function() {
 	var size = function(value) {
 		var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 		if( undefined == value || null == value || value == '') {
@@ -141,7 +186,8 @@
 		}
 		return size+' '+units[index];
 	};
-	var render = function(data) {
+	var render = function(data, opts) {
+		// var opts = {mtime: true, size: true};
 		var html = [];
 		html.push('<h1 class="caption">'+ document.title +'</h1>');
 		html.push('<ol class="list">');
@@ -151,13 +197,13 @@
 				if (data[i].name) {
 					html.push('<li class="item-'+ data[i].type +'">');
 					html.push('<a href="'+ data[i].name +'" title="'+ data[i].name +'"><i class="item-icon '+ data[i].type +'"></i><span class="item-name">'+ data[i].name +'</span></a>');
-					if (data[i].mtime !== undefined || data[i].size !== undefined) {
+					if (typeof(opts) === 'object' && (opts.mtime || opts.size)) {
 						html.push('<span class="item-info">');
-						if (data[i].mtime !== undefined) {
-							html.push('<small class="item-date">'+ (new Date(data[i].mtime)).toLocaleString(undefined, {hour12: false}) +'</small>');
+						if (opts.mtime && data[i].mtime !== undefined) {
+							html.push('<small class="item-mtime">'+ (new Date(data[i].mtime)).toLocaleString(undefined, {hour12: false}) +'</small>');
 						};
-						if (data[i].size !== undefined) {
-							html.push('<small class="item-size">'+ size(data[i].size) +'</small>');
+						if (opts.size) {
+							html.push('<small class="item-size">'+ (data[i].size !== undefined ? size(data[i].size) : '-') +'</small>');
 						};
 						html.push('</span>');
 					};
@@ -174,8 +220,8 @@
 	document.title = 'Index of '+ decodeURIComponent(location.pathname);
 	var app = document.getElementById('autoindex');
 	app.setAttribute('class', 'autoindex');
-	app.innerHTML = render(data);
-})([{}]);
+	app.innerHTML = render([{}], {});
+})();
 </script>
 </body>
 </html>
